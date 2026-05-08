@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07090b">
+<title>Car Care Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#d4af37;--gold-lt:#f1d592;--gold-dim:rgba(212,175,55,0.1);--gold-bd:rgba(212,175,55,0.22);
+  --bg:#07090b;--shell:#0f1318;--card:#151a22;--card2:#1c222c;--border:rgba(255,255,255,0.055);
+  --ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
+  --font:'Cairo','Tajawal',sans-serif;
+}
+html { 
+  scroll-behavior: smooth; 
+  height: -webkit-fill-available;
+  background: var(--bg);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+/* ── Body & Layout ── */
+body{
+  background:var(--bg);
+  background-image:radial-gradient(ellipse at 75% 0%,#161c28 0%,var(--bg) 65%);
+  color:#dde0ea;
+  font-family:var(--font);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh; 
+  padding:12px;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+  display:flex;
+  flex-direction:column;
+  overflow-x: hidden;
+}
+
+/* ── Shell ── */
+.shell{
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  background:var(--shell);
+  border:1px solid var(--gold-bd);
+  border-radius:24px;
+  padding:20px 16px;
+  box-shadow:0 24px 70px rgba(0,0,0,0.6);
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  animation:app-fade-in 0.6s cubic-bezier(0.2,0.8,0.2,1) forwards;
+  position: relative;
+}
+@keyframes app-fade-in{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Header ── */
+.hdr{text-align:center;margin-bottom:20px}
+.hdr h1{font-family:'Tajawal',sans-serif;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:900;letter-spacing:3px;background:linear-gradient(180deg,#fff 0%,var(--gold) 55%,#8a6c18 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15}
+.hdr p{font-size:0.8rem;color:#5a606e;margin-top:4px;letter-spacing:1px}
+
+/* ══════════════════════════════
+   OVERALL HEALTH BAR (NEW)
+══════════════════════════════ */
+.health-card {
+  background: linear-gradient(145deg, var(--card), var(--shell));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+.health-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.5;
+}
+.health-text {
+  font-size: 1rem; font-weight: 700; color: #e8eaf0; margin-bottom: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.health-text span { font-size: 0.8rem; color: #8a909e; font-weight: 600; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; }
+.health-bar-bg { background: #11151c; height: 10px; border-radius: 5px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); }
+.health-bar-fill { height: 100%; width: 0%; background: var(--ok); border-radius: 5px; transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.5s ease; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+
+/* ══════════════════════════════
+   CUSTOM TOAST SYSTEM
+══════════════════════════════ */
+#toast-box{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92vw,400px);pointer-events:none;display:flex;flex-direction:column;gap:8px}
+.toast{
+  display:flex;align-items:flex-start;gap:12px;
+  background:#13171f;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;padding:14px 16px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);
+  animation:toast-in 0.36s cubic-bezier(.34,1.56,.64,1) forwards;
+  pointer-events:auto;
+  position:relative;overflow:hidden;
+}
+.toast::before{content:'';position:absolute;inset:0 auto 0 0;width:4px;border-radius:4px 0 0 4px}
+.toast.t-success::before{background:var(--ok)}
+.toast.t-warn::before{background:var(--warn)}
+.toast.t-error::before{background:var(--danger)}
+.toast.t-info::before{background:var(--gold)}
+.toast-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.toast-content{flex:1;min-width:0}
+.toast-title{font-size:0.88rem;font-weight:700;color:#e8eaf0;line-height:1.3}
+.toast-msg{font-size:0.78rem;color:#7a808e;margin-top:3px;line-height:1.4}
+.toast-close{background:none;border:none;color:#404550;font-size:1rem;cursor:pointer;padding:0 0 0 4px;line-height:1;flex-shrink:0;pointer-events:auto;align-self:flex-start}
+.toast-close:hover{color:#8a909e}
+.toast-progress{position:absolute;bottom:0;left:0;height:2px;border-radius:2px;animation:toast-progress 3s linear forwards}
+.toast.t-success .toast-progress{background:var(--ok)}
+.toast.t-warn .toast-progress{background:var(--warn)}
+.toast.t-error .toast-progress{background:var(--danger)}
+.toast.t-info .toast-progress{background:var(--gold)}
+@keyframes toast-in{from{transform:translateY(-20px) scale(0.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes toast-out{to{transform:translateY(-10px) scale(0.95);opacity:0;max-height:0;padding:0;margin:0}}
+@keyframes toast-progress{from{width:100%}to{width:0%}}
+
+/* ══════════════════════════════
+   CUSTOM CONFIRM DIALOG
+══════════════════════════════ */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:8000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fade-in 0.2s ease}
+.confirm-overlay.hidden{display:none}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+.confirm-box{
+  background:var(--shell);border:1px solid var(--gold-bd);border-radius:22px;
+  padding:28px 24px;width:100%;max-width:380px;
+  box-shadow:0 30px 80px rgba(0,0,0,0.8);
+  animation:box-in 0.3s cubic-bezier(.34,1.4,.64,1) forwards;
+  text-align:center;
+}
+@keyframes box-in{from{transform:scale(0.88);opacity:0}to{transform:scale(1);opacity:1}}
+.confirm-icon{font-size:2.4rem;margin-bottom:14px;display:block}
+.confirm-title{font-size:1.05rem;font-weight:700;color:#e8eaf0;margin-bottom:8px}
+.confirm-msg{font-size:0.85rem;color:#7a808e;line-height:1.6;margin-bottom:22px}
+.confirm-btns{display:flex;gap:10px}
+.confirm-btn{flex:1;padding:12px;border-radius:13px;font-family:var(--font);font-size:0.9rem;font-weight:700;border:none;cursor:pointer;transition:opacity 0.2s,transform 0.1s}
+.confirm-btn:active{transform:scale(0.97)}
+.confirm-btn.yes{background:linear-gradient(135deg,var(--danger),#b91c1c);color:#fff}
+.confirm-btn.yes.gold{background:linear-gradient(135deg,var(--gold),#8f6a10);color:#000}
+.confirm-btn.no{background:var(--card2);color:#8a909e;border:1px solid var(--border)}
+
+/* ── Notif bar ── */
+#notif-bar{display:none;border-radius:14px;padding:13px 16px;margin-bottom:16px;border:1px solid}
+#notif-bar.show{display:block}
+#notif-bar.nb-danger{background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.28)}
+#notif-bar.nb-warn{background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.25)}
+.nb-title{font-size:0.85rem;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.nb-danger .nb-title{color:#fca5a5}.nb-warn .nb-title{color:#fcd34d}
+.nb-item{display:flex;align-items:center;gap:9px;font-size:0.79rem;color:#c8cad4;padding:6px 10px;background:rgba(0,0,0,0.22);border-radius:8px;margin-bottom:5px}
+.nb-item:last-child{margin-bottom:0}
+.nb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.nb-dot.d{background:var(--danger);box-shadow:0 0 5px var(--danger)}.nb-dot.w{background:var(--warn);box-shadow:0 0 5px var(--warn)}
+
+/* ── Cars bar ── */
+.cars-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.car-tab{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 13px;cursor:pointer;transition:all 0.2s;font-size:0.85rem;font-weight:700;color:#8a909e;user-select:none}
+.car-tab.active{border-color:var(--gold-bd);background:rgba(212,175,55,0.08);color:var(--gold-lt)}
+.car-tab .cdel{font-size:0.7rem;color:#ef4444;margin-right:2px;opacity:0;transition:opacity 0.2s;cursor:pointer;padding:2px 5px;border-radius:4px}
+.car-tab:hover .cdel{opacity:1}
+.btn-add-car{display:flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px dashed var(--gold-bd);border-radius:12px;padding:8px 13px;cursor:pointer;font-size:0.82rem;font-weight:700;color:var(--gold);transition:background 0.2s;white-space:nowrap}
+.btn-add-car:hover{background:rgba(212,175,55,0.18)}
+
+/* ── Sections ── */
+.sw{background:rgba(255,255,255,0.01);border:1px solid var(--border);border-radius:17px;margin-bottom:14px;overflow:hidden}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:12px 17px;cursor:pointer;user-select:none;border-bottom:1px solid var(--border);transition:background 0.2s;-webkit-tap-highlight-color:transparent}
+.sh:hover{background:rgba(255,255,255,0.015)}
+.sh:active{background:rgba(255,255,255,0.025)}
+.st{color:var(--gold);font-size:0.95rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.chev{width:26px;height:26px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-bd);color:var(--gold);font-size:0.8rem;display:flex;align-items:center;justify-content:center;transition:transform 0.3s;flex-shrink:0}
+.chev.open{transform:rotate(180deg)}
+.sb{padding:15px 16px}
+
+/* ── Grids ── */
+.g2{display:grid;gap:11px;grid-template-columns:repeat(2,1fr)}
+.g3{display:grid;gap:11px;grid-template-columns:repeat(3,1fr)}
+.g4{display:grid;gap:13px;grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:800px){.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+/* ── Inputs ── */
+.lbl{font-size:0.71rem;color:#505668;font-weight:600;letter-spacing:0.4px;margin-bottom:4px}
+.ig{display:flex;flex-direction:column}
+select,input{
+  background:#0d1117;
+  border:1px solid #1f2633;
+  color:#dde0ea;
+  padding:11px 13px;
+  border-radius:11px;
+  font-family:var(--font);
+  font-size:16px;
+  font-weight:500;
+  width:100%;
+  outline:none;
+  transition:border-color 0.2s,box-shadow 0.2s;
+  -webkit-appearance:none;
+}
+select:focus,input:focus{border-color:rgba(212,175,55,0.5);box-shadow:0 0 0 3px rgba(212,175,55,0.07)}
+select option{background:#0d1117}
+input[type="tel"]{direction:ltr!important;text-align:left!important;unicode-bidi:plaintext!important;font-variant-numeric:tabular-nums}
+input[type="tel"]::placeholder{color:#353d4d;direction:ltr;text-align:left}
+input[type="date"]{direction:rtl}
+
+/* ── Insurance & Calendar Button ── */
+.ins-card{background:var(--card);border:2px solid var(--border);border-radius:15px;padding:14px;transition:border-color 0.3s,box-shadow 0.3s,background 0.3s}
+.ins-card.s-ok{border-color:rgba(34,197,94,0.5);background:linear-gradient(160deg,rgba(34,197,94,0.07) 0%,var(--card) 55%);box-shadow:0 0 22px rgba(34,197,94,0.1)}
+.ins-card.s-warn{border-color:rgba(245,158,11,0.6);background:linear-gradient(160deg,rgba(245,158,11,0.08) 0%,var(--card) 55%);box-shadow:0 0 22px rgba(245,158,11,0.13)}
+.ins-card.s-danger{border-color:rgba(239,68,68,0.65);background:linear-gradient(160deg,rgba(239,68,68,0.09) 0%,var(--card) 55%);box-shadow:0 0 26px rgba(239,68,68,0.16);animation:pdanger 2s infinite}
+.ins-name{font-size:0.88rem;font-weight:700;color:var(--gold-lt);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.s-ok .ins-name{color:#86efac}.s-warn .ins-name{color:#fcd34d}.s-danger .ins-name{color:#fca5a5}
+.ins-days{font-size:1.5rem;font-weight:900;color:#e2e5ef;margin:5px 0 3px;direction:ltr;unicode-bidi:isolate}
+.ins-days-lbl{font-size:0.68rem;color:#40485a}
+.ins-info{font-size:0.73rem;color:#606878;margin-top:8px;border-top:1px solid var(--border);padding-top:7px;display:flex;justify-content:space-between;align-items:center}
+
+.cal-btn {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #dde0ea;
+  padding: 5px 10px; border-radius: 8px; font-family: var(--font); font-size: 0.7rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+}
+.cal-btn:hover { background: rgba(212,175,55,0.15); border-color: rgba(212,175,55,0.4); color: var(--gold-lt); }
+
+/* ── Part cards ── */
+@keyframes pdanger{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 14px 4px rgba(239,68,68,0.2)}}
+.pc{background:var(--card);border:2px solid var(--border);border-radius:17px;overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s,background 0.3s}
+.pc.s-ok{border-color:rgba(34,197,94,0.5);background:linear-gradient(160deg,rgba(34,197,94,0.07) 0%,var(--card) 55%);box-shadow:0 0 26px rgba(34,197,94,0.1),inset 0 1px 0 rgba(34,197,94,0.08)}
+.pc.s-warn{border-color:rgba(245,158,11,0.6);background:linear-gradient(160deg,rgba(245,158,11,0.09) 0%,var(--card) 55%);box-shadow:0 0 26px rgba(245,158,11,0.15),inset 0 1px 0 rgba(245,158,11,0.1)}
+.pc.s-danger{border-color:rgba(239,68,68,0.65);background:linear-gradient(160deg,rgba(239,68,68,0.1) 0%,var(--card) 55%);box-shadow:0 0 30px rgba(239,68,68,0.18),inset 0 1px 0 rgba(239,68,68,0.12);animation:pdanger 2s infinite}
+
+.pc-top{display:flex;align-items:center;justify-content:space-between;padding:11px 13px 8px;gap:7px;transition:background 0.3s}
+.s-ok .pc-top{background:rgba(34,197,94,0.05)}.s-warn .pc-top{background:rgba(245,158,11,0.06)}.s-danger .pc-top{background:rgba(239,68,68,0.07)}
+.pc-name{font-size:0.85rem;font-weight:700;color:var(--gold-lt);line-height:1.2;transition:color 0.3s}
+.s-ok .pc-name{color:#86efac}.s-warn .pc-name{color:#fcd34d}.s-danger .pc-name{color:#fca5a5}
+.pc-acts{display:flex;align-items:center;gap:5px}
+.pill{font-size:0.63rem;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0;opacity:0;transition:opacity 0.3s}
+.pill.vis{opacity:1}
+.p-ok{background:rgba(34,197,94,0.14);color:#4ade80;border:1px solid rgba(34,197,94,0.25)}
+.p-warn{background:rgba(245,158,11,0.18);color:#fbbf24;border:1px solid rgba(245,158,11,0.35)}
+.p-danger{background:rgba(239,68,68,0.18);color:#f87171;border:1px solid rgba(239,68,68,0.38)}
+.pc-ico-btn{background:none;border:none;color:#3d4454;font-size:0.85rem;cursor:pointer;padding:3px 5px;border-radius:6px;transition:color 0.2s;line-height:1}
+.pc-ico-btn:hover{color:var(--gold)}
+.pc-del-btn:hover{color:var(--danger)!important}
+
+.pc-in{padding:0 12px 9px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pc-in input{font-size:16px;padding:9px 10px;border-radius:9px}
+
+.pc-btn{display:block;width:calc(100% - 24px);margin:0 12px 10px;border-radius:8px;padding:8px;font-family:var(--font);font-size:0.76rem;font-weight:900;cursor:pointer;text-align:center;transition:all 0.25s;border:1px solid}
+.pc-btn.q-def{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-bd)}
+.pc-btn.q-def:hover{background:rgba(212,175,55,0.18)}
+.pc-btn.q-ok{background:rgba(34,197,94,0.13);color:#4ade80;border-color:rgba(34,197,94,0.4)}
+.pc-btn.q-ok:hover{background:rgba(34,197,94,0.22)}
+.pc-btn.q-warn{background:rgba(245,158,11,0.13);color:#fbbf24;border-color:rgba(245,158,11,0.5)}
+.pc-btn.q-warn:hover{background:rgba(245,158,11,0.22)}
+.pc-btn.q-danger{background:rgba(239,68,68,0.14);color:#f87171;border-color:rgba(239,68,68,0.55);animation:pdanger 2s infinite}
+.pc-btn.q-danger:hover{background:rgba(239,68,68,0.24)}
+
+.drawer{max-height:0;overflow:hidden;transition:max-height 0.4s cubic-bezier(.4,0,.2,1);background:var(--card2);border-top:1px solid transparent}
+.drawer.open{max-height:200px;border-top-color:var(--border)}
+.dr-body{padding:11px 13px 13px}
+.pw{background:#191f2b;border-radius:5px;height:5px;overflow:hidden;margin-bottom:10px}
+.pb{height:100%;border-radius:5px;transition:width 0.5s ease,background 0.3s}
+.sts{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px}
+.stb{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:9px;padding:8px;text-align:center}
+.stn{display:block;font-size:0.98rem;font-weight:900;color:#e2e5ef;direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.stl{font-size:0.62rem;color:#40485a;margin-top:2px}
+.dr-foot{font-size:0.7rem;color:#3c4352;border-top:1px solid var(--border);padding-top:7px;line-height:1.6}
+.dr-foot .dr{color:#5c6578}
+.dr-foot .nx{color:var(--gold-lt);font-weight:600;margin-top:2px;display:block}
+
+/* ── Modals ── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:3000;display:flex;align-items:flex-end;justify-content:center;padding:0;backdrop-filter:blur(5px);animation:fade-in 0.2s ease}
+.mo.hidden{display:none}
+@media(min-width:560px){.mo{align-items:center;padding:20px}}
+.mo-box{background:var(--shell);border:1px solid var(--gold-bd);border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;animation:slide-up 0.35s cubic-bezier(.34,1.2,.64,1) forwards}
+@media(min-width:560px){.mo-box{border-radius:22px;animation:box-in 0.3s cubic-bezier(.34,1.3,.64,1) forwards}}
+@keyframes slide-up{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mo-hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border);flex-shrink:0}
+.mo-title{color:var(--gold);font-size:0.97rem;font-weight:700}
+.mo-close{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:#606878;font-size:0.85rem;cursor:pointer;padding:5px 9px;border-radius:8px;transition:all 0.2s;font-family:var(--font)}
+.mo-close:hover{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:#f87171}
+.mo-body{overflow-y:auto;padding:15px 18px;flex:1;-webkit-overflow-scrolling:touch}
+.hist-empty{text-align:center;color:#40485a;font-size:0.85rem;padding:28px 0}
+.hi{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card);border:1px solid var(--border);border-radius:11px;margin-bottom:7px;gap:10px}
+.hi:last-child{margin-bottom:0}
+.hi-km{font-size:0.97rem;font-weight:900;color:#e2e5ef;direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.hi-date{font-size:0.75rem;color:#606878;margin-top:2px}
+.hi-del{background:none;border:none;color:#3d4454;cursor:pointer;font-size:0.85rem;padding:4px 7px;border-radius:6px;transition:color 0.2s;flex-shrink:0}
+.hi-del:hover{color:#ef4444}
+.ap-form{display:flex;flex-direction:column;gap:12px}
+
+/* ── Bottom bar ── */
+.bbar{display:flex;gap:9px;margin-top:18px;margin-bottom:24px}
+.btn-primary{background:linear-gradient(135deg,var(--gold) 0%,#8f6a10 100%);color:#000;flex:1;padding:14px;border-radius:13px;font-family:var(--font);font-size:0.95rem;font-weight:900;border:none;cursor:pointer;letter-spacing:0.5px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent}
+.btn-primary:hover{opacity:0.88}
+.btn-primary:active{transform:scale(0.98)}
+.btn-sec{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-bd);padding:14px 18px;border-radius:13px;font-family:var(--font);font-size:0.85rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background 0.2s;-webkit-tap-highlight-color:transparent}
+.btn-sec:hover{background:rgba(212,175,55,0.18)}
+
+/* ══════════════════════════════
+   FOOTER — SIGNATURE (MODERN)
+══════════════════════════════ */
+.sig {
+  margin-top: auto;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 12px 24px;
+  background: rgba(212, 175, 55, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 50px;
+  width: fit-content;
+  align-self: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.sig:hover {
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.4);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4), 0 0 20px rgba(212, 175, 55, 0.15);
+}
+.sig-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: linear-gradient(135deg, #1e2530, #0d1117);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.1);
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+}
+.sig:hover .sig-avatar {
+  transform: rotate(360deg) scale(1.1);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+}
+.sig-avatar svg { width: 15px; height: 15px; transition: stroke 0.3s; }
+.sig:hover .sig-avatar svg { stroke: #fff; }
+.sig-divider { width: 1px; height: 18px; background: rgba(212, 175, 55, 0.25); flex-shrink: 0; }
+.sig-handle {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.9rem; font-weight: 700;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #f1d592, #d4af37, #fff, #d4af37, #f1d592);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+.sig-dot-sep { width: 4px; height: 4px; border-radius: 50%; background: rgba(212, 175, 55, 0.3); flex-shrink: 0; transition: background 0.3s; }
+.sig:hover .sig-dot-sep { background: rgba(212, 175, 55, 0.8); box-shadow: 0 0 8px rgba(212, 175, 55, 0.8); }
+.sig-copy { font-size: 0.75rem; color: #7a808e; font-weight: 600; letter-spacing: 0.5px; transition: color 0.3s; }
+.sig:hover .sig-copy { color: #d4af37; }
+
+@media print{
+  .bbar,.pc-btn,.btn-add-car,.cdel,.pc-ico-btn,.mo,.confirm-overlay,#notif-bar,.health-card,.cal-btn{display:none}
+  body{background:#fff;color:#000;display:block}
+  .shell{border:none;box-shadow:none;display:block;animation:none}
+  .sig{border-color:#ddd;background:#fafafa;box-shadow:none;margin-top:40px;page-break-inside:avoid}
+  .sig-handle{background:none;-webkit-text-fill-color:#000;color:#000}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-box"></div>
+
+<!-- Confirm dialog -->
+<div class="confirm-overlay hidden" id="confirm-overlay">
+  <div class="confirm-box">
+    <span class="confirm-icon" id="confirm-icon">⚠️</span>
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-btn no" id="confirm-no">إلغاء</button>
+      <button class="confirm-btn yes" id="confirm-yes">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- History modal -->
+<div class="mo hidden" id="hist-mo">
+  <div class="mo-box">
+    <div class="mo-hdr"><span class="mo-title" id="hist-title">سجل التغييرات</span><button class="mo-close" onclick="App.closeHist()">✕ إغلاق</button></div>
+    <div class="mo-body" id="hist-body"></div>
+  </div>
+</div>
+
+<!-- Add part modal -->
+<div class="mo hidden" id="ap-mo">
+  <div class="mo-box">
+    <div class="mo-hdr"><span class="mo-title">＋ إضافة قطعة مخصصة</span><button class="mo-close" onclick="App.closeAP()">✕ إغلاق</button></div>
+    <div class="mo-body">
+      <div class="ap-form">
+        <div class="ig"><div class="lbl">اسم القطعة</div><input type="text" id="ap-name" placeholder="مثال: فلتر الكابينة"></div>
+        <div class="ig"><div class="lbl">فترة التغيير بالكيلومتر</div><input type="tel" id="ap-km" placeholder="20000" inputmode="numeric"></div>
+        <div class="ig"><div class="lbl">فترة التغيير بالأيام</div><input type="tel" id="ap-day" placeholder="365" inputmode="numeric"></div>
+        <button class="btn-primary" onclick="App.confirmAP()">إضافة القطعة ←</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="shell">
+  <header class="hdr"><h1>CAR CARE PRO</h1><p>التقرير الشامل لحالة المركبة</p></header>
+
+  <!-- Overall Health Bar -->
+  <div class="health-card">
+    <div class="health-text" id="health-text">صحة المركبة العامة: <span id="health-status">--%</span></div>
+    <div class="health-bar-bg">
+      <div class="health-bar-fill" id="health-fill"></div>
+    </div>
+  </div>
+
+  <div id="notif-bar"><div class="nb-title" id="nb-title-el"></div><div id="notif-list"></div></div>
+
+  <div class="cars-bar" id="cars-bar"></div>
+
+  <!-- Identity -->
+  <div class="sw">
+    <div class="sh" onclick="App.toggleSec('id')">
+      <span class="st">✦ هوية المركبة</span><span class="chev open" id="chev-id">▾</span>
+    </div>
+    <div class="sb" id="body-id">
+      <div class="g2">
+        <div class="ig"><div class="lbl">الشركة المصنّعة</div>
+          <select id="brandSelect">
+            <option value="">-- الشركة --</option>
+          </select>
+        </div>
+        <div class="ig"><div class="lbl">الموديل</div><select id="modelSelect"><option value="">حدد الشركة</option></select></div>
+        <div class="ig"><div class="lbl">نوع الطاقة</div>
+          <select id="fuelSelect">
+            <option value="petrol">بنزين (Essence)</option>
+            <option value="diesel">مازوت (Diesel)</option>
+            <option value="lpg">غاز (Sirghaz / GPL)</option>
+          </select>
+        </div>
+        <div class="ig"><div class="lbl">العداد الحالي (كم)</div><input type="tel" id="curKm" placeholder="290000" inputmode="numeric"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insurance -->
+  <div class="sw">
+    <div class="sh" onclick="App.toggleSec('ins')">
+      <span class="st">🛡 التأمين والتقنية</span><span class="chev" id="chev-ins">▾</span>
+    </div>
+    <div class="sb" id="body-ins" style="display:none">
+      <div class="g2">
+        <div class="ins-card" id="ic-ass">
+          <div class="ins-name">🛡 التأمين <span class="pill" id="ip-ass"></span></div>
+          <div class="ig" style="margin-bottom:9px"><div class="lbl">تاريخ الانتهاء</div><input type="date" id="id-ass"></div>
+          <div class="ins-days" id="idays-ass">—</div><div class="ins-days-lbl">يوم متبقٍ</div>
+          <div class="ins-info">
+            <span id="iinfo-ass"></span>
+            <button class="cal-btn" onclick="App.addToCalendar('ass')" title="إضافة تذكير لتقويم جوجل">📅 تذكير</button>
+          </div>
+        </div>
+        <div class="ins-card" id="ic-tech">
+          <div class="ins-name">🔧 التقنية <span class="pill" id="ip-tech"></span></div>
+          <div class="ig" style="margin-bottom:9px"><div class="lbl">تاريخ الانتهاء</div><input type="date" id="id-tech"></div>
+          <div class="ins-days" id="idays-tech">—</div><div class="ins-days-lbl">يوم متبقٍ</div>
+          <div class="ins-info">
+            <span id="iinfo-tech"></span>
+            <button class="cal-btn" onclick="App.addToCalendar('tech')" title="إضافة تذكير لتقويم جوجل">📅 تذكير</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parts -->
+  <div class="sw">
+    <div class="sh" onclick="App.toggleSec('parts')">
+      <span class="st">⚙ سجل القطع والفحص</span><span class="chev" id="chev-parts">▾</span>
+    </div>
+    <div class="sb" id="body-parts" style="display:none">
+      <div id="partsGrid" class="g4"></div>
+    </div>
+  </div>
+
+  <div class="bbar">
+    <button class="btn-sec" onclick="App.openAP()">＋ قطعة</button>
+    <button class="btn-primary" onclick="window.print()">⬇ حفظ PDF</button>
+  </div>
+
+  <!-- Signature footer -->
+  <div class="sig">
+    <div class="sig-avatar">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="5" r="2.8" stroke="#d4af37" stroke-width="1.2"/>
+        <path d="M2.5 14c0-3.038 2.462-5.5 5.5-5.5s5.5 2.462 5.5 5.5" stroke="#d4af37" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="sig-divider"></div>
+    <span class="sig-handle">K_Zoubir</span>
+    <div class="sig-dot-sep"></div>
+    <span class="sig-copy">© 2026</span>
+  </div>
+
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   MASSIVE CAR DATABASE (OEM SPECIFICATIONS - SEVERE CONDITIONS)
+══════════════════════════════════════════════════════════════════════════ */
+const DEF_INT = { oil:7000, belt:60000, brakes_f:30000, brakes_r:50000, tires:40000, coolant:40000, brake_fluid:40000, spark:30000, air_filter:10000 };
+
+const CAR_DB = {
+  renault: {
+    name: "RENAULT — رونو",
+    models: {
+      "R4 / R5 / R19": { oil: 5000, belt: 50000, spark: 15000, air_filter: 5000, coolant: 40000 },
+      "Clio 1": { oil: 5000, belt: 50000, spark: 20000, air_filter: 7000, coolant: 40000 },
+      "Clio 2 / Clio Campus": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000, coolant: 40000 },
+      "Clio 3": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, coolant: 40000 },
+      "Clio 4": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, coolant: 40000 },
+      "Clio 5": { oil: 8000, belt: 60000, spark: 30000, air_filter: 10000, coolant: 40000 },
+      "Symbol 1 / Symbol 2": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000, coolant: 40000 },
+      "Symbol 3 (Extrême/Elegance)": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, coolant: 40000 },
+      "Megane 1 / Megane 2": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000, coolant: 40000 },
+      "Megane 3": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, coolant: 40000 },
+      "Megane 4": { oil: 8000, belt: 60000, spark: 30000, air_filter: 10000, coolant: 40000 },
+      "Kangoo 1 / Express": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000, brakes_f: 30000 },
+      "Kangoo 2 / Kangoo 3": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, brakes_f: 30000 },
+      "Laguna 1 / 2 / 3": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Captur / Kadjar": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Koleos / Talisman": { oil: 8000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Master / Trafic": { oil: 7000, belt: 60000, air_filter: 10000, brakes_f: 30000 }
+    }
+  },
+  peugeot: {
+    name: "PEUGEOT — بيجو",
+    models: {
+      "205 / 106": { oil: 5000, belt: 50000, spark: 20000, air_filter: 7000 },
+      "206 / 206+": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "207 / 207 Compact": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "208 I / 208 II": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "301": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "306 / 307": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "308 I / 308 II": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "406 / 407": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "508": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "2008 / 3008 / 5008": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "Partner I / Partner Tepee": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000, brakes_f: 30000 },
+      "Rifter / Expert / Boxer": { oil: 7000, belt: 60000, air_filter: 10000, brakes_f: 30000 }
+    }
+  },
+  dacia: {
+    name: "DACIA — داتشيا",
+    models: {
+      "Solenza": { oil: 5000, belt: 50000, spark: 20000, air_filter: 7000 },
+      "Logan 1 / Sandero 1": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "Logan 2 / Sandero 2": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Logan 3 / Sandero 3": { oil: 8000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Stepway 1 / 2 / 3": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Duster 1 / Duster 2": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, brakes_f: 30000 },
+      "Lodgy / Dokker": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 }
+    }
+  },
+  hyundai: {
+    name: "HYUNDAI — هيونداي",
+    models: {
+      "Atos / Atos Prime / Eon": { oil: 5000, belt: 50000, spark: 20000, air_filter: 10000 },
+      "i10 / Grand i10": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "i20 / i30": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Accent (Old) / Accent Era": { oil: 7000, belt: 60000, spark: 20000, air_filter: 10000 },
+      "Accent RB / Accent HCI": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Elantra / Sonata": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Tucson / Santa Fe / Creta": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "H100 / H1": { oil: 5000, belt: 60000, air_filter: 10000, brakes_f: 30000 }
+    }
+  },
+  kia: {
+    name: "KIA — كيا",
+    models: {
+      "Picanto (Old) / Rio (Old)": { oil: 5000, belt: 50000, spark: 20000, air_filter: 10000 },
+      "Picanto (New) / Rio (New)": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Cerato / Optima": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Sportage / Sorento": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "K2700": { oil: 5000, belt: 60000, air_filter: 10000, brakes_f: 30000 }
+    }
+  },
+  toyota: {
+    name: "TOYOTA — تويوتا",
+    models: {
+      "Yaris / Yaris Sedan": { oil: 7000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Corolla / Camry": { oil: 7000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Hilux (Old)": { oil: 5000, belt: 80000, air_filter: 5000, brakes_f: 30000 },
+      "Hilux (New)": { oil: 7000, belt: 80000, air_filter: 10000, brakes_f: 30000 },
+      "Land Cruiser / Prado": { oil: 7000, belt: 80000, air_filter: 10000, brakes_f: 30000 },
+      "RAV4": { oil: 7000, belt: 80000, spark: 30000, air_filter: 10000 }
+    }
+  },
+  volkswagen: {
+    name: "VOLKSWAGEN — VW",
+    models: {
+      "Polo 3 / Polo 4": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Polo 5 / Polo 6": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Golf 4 / Golf 5": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Golf 6 / Golf 7 / Golf 8": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Passat B5 / B6": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Passat B7 / B8": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Caddy": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000, brakes_f: 30000 },
+      "Tiguan / Touareg": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Amarok / Transporter": { oil: 7000, belt: 60000, air_filter: 10000 }
+    }
+  },
+  seat: {
+    name: "SEAT — سيات",
+    models: {
+      "Ibiza (6L / 6J)": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Ibiza (6F) / Leon (5F)": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Leon (1M / 1P)": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Arona / Ateca": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 }
+    }
+  },
+  skoda: {
+    name: "SKODA — سكودا",
+    models: {
+      "Fabia 1 / 2": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Fabia 3 / Octavia 3 / 4": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 },
+      "Octavia 1 / 2": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Rapid / Superb / Yeti": { oil: 8000, belt: 80000, spark: 30000, air_filter: 10000 }
+    }
+  },
+  chevrolet: {
+    name: "CHEVROLET — شيفروليه",
+    models: {
+      "Spark / Sail": { oil: 5000, belt: 50000, spark: 20000, air_filter: 10000 },
+      "Aveo / Optra": { oil: 5000, belt: 50000, spark: 20000, air_filter: 10000 },
+      "Cruze / Captiva": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 }
+    }
+  },
+  nissan: {
+    name: "NISSAN — نيسان",
+    models: {
+      "Micra / Sunny / Sentra": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Qashqai / X-Trail": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Navara / Patrol": { oil: 5000, belt: 60000, air_filter: 10000, brakes_f: 30000 }
+    }
+  },
+  ford: {
+    name: "FORD — فورد",
+    models: {
+      "Fiesta / Focus": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Mondeo / Kuga": { oil: 7000, belt: 60000, spark: 30000, air_filter: 10000 },
+      "Ranger / Transit": { oil: 7000, belt: 60000, air_filter: 10000, brakes_f: 30000 }
+    }
+  }
+};
+
+const App = {
+  secs:{id:true,ins:false,parts:false},
+  carId:null,
+  lastValidKm:'',
+
+  DEF_PARTS:[
+    {id:'oil',name:'زيت المحرك والفلتر',kmInt:7000,dayInt:180,custom:false},
+    {id:'belt',name:'سير المحرك (كروة)',kmInt:60000,dayInt:1095,custom:false},
+    {id:'brakes_f',name:'المكابح الأمامية',kmInt:30000,dayInt:730,custom:false},
+    {id:'brakes_r',name:'المكابح الخلفية',kmInt:50000,dayInt:1095,custom:false},
+    {id:'tires',name:'الإطارات',kmInt:40000,dayInt:1095,custom:false},
+    {id:'coolant',name:'سائل التبريد (LDR)',kmInt:40000,dayInt:730,custom:false},
+    {id:'brake_fluid',name:'زيت الفرامل',kmInt:40000,dayInt:730,custom:false},
+    {id:'spark',name:'البواجي',kmInt:30000,dayInt:730,custom:false},
+    {id:'air_filter',name:'فلتر الهواء',kmInt:10000,dayInt:180,custom:false}
+  ],
+
+  SK:'ccp_v93',
+  uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)},
+  fmt(n){n=parseInt(String(n).replace(/\D/g,''))||0;return n?String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0'):'0'},
+  fmtI(n){n=parseInt(String(n).replace(/\D/g,''))||0;return n?String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0'):''},
+  parse(v){return parseInt(String(v||'').replace(/\D/g,''))||0},
+  today(){return new Date().toISOString().split('T')[0]},
+
+  /* ── PWA Setup (Add to Home Screen) ── */
+  setupPWA(){
+    const manifest = {
+      "name": "Car Care Pro",
+      "short_name": "CarCare",
+      "display": "standalone",
+      "background_color": "#07090b",
+      "theme_color": "#d4af37",
+      "icons":[{
+        "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2Q0YWYzNyIvPjx0ZXh0IHg9IjUwIiB5PSI2NSIgZm9udC1zaXplPSI1MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+QzwvdGV4dD48L3N2Zz4=",
+        "sizes": "192x192",
+        "type": "image/svg+xml"
+      }]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    const manifestURL = URL.createObjectURL(blob);
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = manifestURL;
+    document.head.appendChild(link);
+
+    const swCode = `
+      self.addEventListener('install', (e) => { self.skipWaiting(); });
+      self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); });
+      self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });
+    `;
+    const swBlob = new Blob([swCode], {type: 'application/javascript'});
+    const swUrl = URL.createObjectURL(swBlob);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(swUrl).catch(()=>{});
+    }
+  },
+
+  /* ── Google Calendar Integration ── */
+  addToCalendar(type){
+    const isAss = type === 'ass';
+    const dateVal = document.getElementById(isAss ? 'id-ass' : 'id-tech').value;
+    if(!dateVal) {
+      this.toast('warn', 'تنبيه', 'الرجاء إدخال التاريخ أولاً لإضافة التذكير');
+      return;
+    }
+    const d = new Date(dateVal);
+    const dStr = d.toISOString().replace(/-|:|\.\d\d\d/g,"").slice(0,8);
+    const title = encodeURIComponent(isAss ? 'تجديد تأمين السيارة' : 'تجديد الفحص التقني للسيارة');
+    const details = encodeURIComponent('تذكير من تطبيق Car Care Pro لتجديد وثائق السيارة قبل انتهاء الصلاحية.');
+    // موعد التذكير الساعة 9 صباحاً
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dStr}T090000Z/${dStr}T100000Z&details=${details}`;
+    window.open(url, '_blank');
+  },
+
+  /* ── Toast ── */
+  toast(type,title,msg){
+    const icons={success:'✅',warn:'⚠️',error:'🚫',info:'💡'};
+    const el=document.createElement('div');
+    el.className=`toast t-${type}`;
+    el.innerHTML=`<span class="toast-icon">${icons[type]||'💬'}</span>
+      <div class="toast-content"><div class="toast-title">${title}</div>${msg?`<div class="toast-msg">${msg}</div>`:''}</div>
+      <button class="toast-close" onclick="this.closest('.toast').remove()">✕</button>
+      <div class="toast-progress"></div>`;
+    document.getElementById('toast-box').appendChild(el);
+    setTimeout(()=>{el.style.animation='toast-out 0.3s forwards';setTimeout(()=>el.remove(),300)},3200);
+  },
+
+  /* ── Confirm dialog ── */
+  confirm(icon,title,msg,yesTxt,yesCls,cb){
+    document.getElementById('confirm-icon').textContent=icon;
+    document.getElementById('confirm-title').textContent=title;
+    document.getElementById('confirm-msg').textContent=msg;
+    const yBtn=document.getElementById('confirm-yes');
+    yBtn.textContent=yesTxt;yBtn.className='confirm-btn yes'+(yesCls?' '+yesCls:'');
+    document.getElementById('confirm-no').onclick=()=>document.getElementById('confirm-overlay').classList.add('hidden');
+    yBtn.onclick=()=>{document.getElementById('confirm-overlay').classList.add('hidden');cb();};
+    document.getElementById('confirm-overlay').classList.remove('hidden');
+  },
+
+  flashErr(el){
+    el.style.borderColor='rgba(239,68,68,0.8)';el.style.boxShadow='0 0 0 3px rgba(239,68,68,0.13)';
+    setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},1800);
+  },
+
+  toggleSec(id){
+    this.secs[id]=!this.secs[id];
+    document.getElementById('body-'+id).style.display=this.secs[id]?'':'none';
+    document.getElementById('chev-'+id).classList.toggle('open',this.secs[id]);
+  },
+
+  /* ── Storage ── */
+  allData(){try{return JSON.parse(localStorage.getItem(this.SK))||{cars:[]};}catch(e){return{cars:[]}}},
+  saveAll(d){try{localStorage.setItem(this.SK,JSON.stringify(d));}catch(e){}},
+  getCar(id){return this.allData().cars.find(c=>c.id===id)||null},
+  saveCar(car){const d=this.allData();const i=d.cars.findIndex(c=>c.id===car.id);if(i>=0)d.cars[i]=car;else d.cars.push(car);this.saveAll(d);},
+  newCar(id){return{id,brand:'',model:'',fuel:'petrol',curKm:'',insurance:{ass:'',tech:''},parts:JSON.parse(JSON.stringify(this.DEF_PARTS)).map(p=>({...p,km:'',date:'',history:[]}))}},
+
+  /* ── Cars bar ── */
+  renderCarsBar(){
+    const all=this.allData();
+    const bar=document.getElementById('cars-bar');bar.innerHTML='';
+    all.cars.forEach(car=>{
+      const brandName = CAR_DB[car.brand]?.name.split('—')[0].trim() || car.brand;
+      const label=car.brand&&car.model?(brandName+' '+car.model.split('(')[0].trim()):'سيارة';
+      const tab=document.createElement('div');tab.className='car-tab'+(car.id===this.carId?' active':'');
+      tab.innerHTML=`<span>🚗</span><span>${label}</span>`+(all.cars.length>1?`<span class="cdel" onclick="event.stopPropagation();App.deleteCar('${car.id}')">✕</span>`:'');
+      tab.addEventListener('click',()=>this.switchCar(car.id));
+      bar.appendChild(tab);
+    });
+    const add=document.createElement('div');add.className='btn-add-car';add.innerHTML='＋ سيارة';
+    add.addEventListener('click',()=>this.addCar());bar.appendChild(add);
+  },
+
+  addCar(){const d=this.allData();const car=this.newCar(this.uid());d.cars.push(car);this.saveAll(d);this.switchCar(car.id);},
+
+  deleteCar(id){
+    this.confirm('🗑️','حذف السيارة','هل أنت متأكد؟ سيتم حذف جميع بيانات هذه السيارة نهائياً.','حذف نهائي','',()=>{
+      const d=this.allData();d.cars=d.cars.filter(c=>c.id!==id);
+      if(!d.cars.length){const car=this.newCar(this.uid());d.cars.push(car);}
+      this.saveAll(d);
+      this.switchCar(d.cars[0].id);
+      this.toast('info','تم الحذف','تم حذف السيارة بنجاح');
+    });
+  },
+
+  switchCar(id){this.carId=id;this.renderCarsBar();this.loadCarUI();},
+
+  /* ── Load/save UI ── */
+  loadCarUI(){
+    const car=this.getCar(this.carId);if(!car)return;
+    document.getElementById('brandSelect').value=car.brand||'';
+    this.updateModels(car.brand,false);
+    document.getElementById('modelSelect').value=car.model||'';
+    document.getElementById('fuelSelect').value=car.fuel||'petrol';
+    document.getElementById('curKm').value=car.curKm||'';
+    this.lastValidKm=car.curKm||'';
+    document.getElementById('id-ass').value=car.insurance?.ass||'';
+    document.getElementById('id-tech').value=car.insurance?.tech||'';
+    this.renderParts(car);this.process();
+  },
+
+  collectCar(){
+    const car=this.getCar(this.carId)||this.newCar(this.carId);
+    car.brand=document.getElementById('brandSelect').value;
+    car.model=document.getElementById('modelSelect').value;
+    car.fuel=document.getElementById('fuelSelect').value;
+    car.curKm=document.getElementById('curKm').value;
+    car.insurance={ass:document.getElementById('id-ass').value,tech:document.getElementById('id-tech').value};
+    car.parts=(car.parts||[]).map(p=>{
+      const ke=document.getElementById('km_'+p.id),de=document.getElementById('dt_'+p.id);
+      return{...p,km:ke?ke.value:'',date:de?de.value:''};
+    });
+    return car;
+  },
+
+  populateBrands(){
+    const sel=document.getElementById('brandSelect');
+    sel.innerHTML='<option value="">-- الشركة --</option>';
+    Object.keys(CAR_DB).forEach(k=>{
+      sel.innerHTML+=`<option value="${k}">${CAR_DB[k].name}</option>`;
+    });
+  },
+
+  updateModels(brand,proc=true){
+    const sel=document.getElementById('modelSelect');
+    sel.innerHTML='<option value="">الموديل</option>';
+    if(CAR_DB[brand]){
+      Object.keys(CAR_DB[brand].models).sort().forEach(m=>{
+        sel.innerHTML+=`<option value="${m}">${m}</option>`;
+      });
+    }
+    if(proc)this.process();
+  },
+
+  /* ── Smart Engine: Apply OEM Settings & Fuel Logic ── */
+  getDaysForKm(km, partId){
+    if(partId === 'oil') return 180;
+    if(partId === 'belt') return 1095;
+    if(partId === 'brakes_f' || partId === 'brakes_r') return 730;
+    if(partId === 'tires') return 1095;
+    if(partId === 'coolant') return 730;
+    if(partId === 'brake_fluid') return 730;
+    if(partId === 'spark') return 730;
+    if(partId === 'air_filter') return 180;
+    return Math.floor((km / 10000) * 365);
+  },
+
+  applyModelSettings(){
+    const brand = document.getElementById('brandSelect').value;
+    const model = document.getElementById('modelSelect').value;
+    const fuel = document.getElementById('fuelSelect').value;
+    const car = this.getCar(this.carId);
+    
+    if(!car || !brand || !model || !CAR_DB[brand]?.models[model]) {
+      this.process(); return;
+    }
+
+    const oemData = CAR_DB[brand].models[model];
+    let updated = false;
+
+    let oilKm = oemData.oil || 7000;
+    let sparkKm = oemData.spark || 30000;
+    let airKm = oemData.air_filter || 10000;
+
+    if (fuel === 'diesel') {
+      sparkKm = null;
+      oilKm = Math.min(oilKm, 7000);
+    } else if (fuel === 'lpg') {
+      sparkKm = Math.min(sparkKm, 20000);
+      airKm = Math.min(airKm, 10000);
+      oilKm = Math.min(oilKm, 7000);
+    }
+
+    car.parts.forEach(p => {
+      if(!p.custom) {
+        let newKm = oemData[p.id] || DEF_INT[p.id];
+        
+        if (p.id === 'oil') newKm = oilKm;
+        if (p.id === 'spark') newKm = sparkKm;
+        if (p.id === 'air_filter') newKm = airKm;
+
+        if (newKm !== null) {
+          const newDays = this.getDaysForKm(newKm, p.id);
+          if(p.kmInt !== newKm || p.dayInt !== newDays) {
+            p.kmInt = newKm;
+            p.dayInt = newDays;
+            updated = true;
+          }
+        }
+      }
+    });
+
+    if(updated) {
+      this.saveCar(car);
+      this.renderParts(car);
+      this.toast('info', 'إعدادات المصنع (الحد الأدنى)', `تم ضبط فترات الصيانة لتناسب ${model.split('(')[0].trim()} (${fuel === 'diesel' ? 'مازوت' : fuel === 'lpg' ? 'غاز' : 'بنزين'}) حسب ظروف القيادة الشاقة`);
+    }
+    this.process();
+  },
+
+  /* ── Render parts ── */
+  renderParts(car){
+    const parts=car?.parts||[];const today=this.today();
+    const fuel = document.getElementById('fuelSelect').value;
+
+    document.getElementById('partsGrid').innerHTML=parts.map(p=>{
+      if (p.id === 'spark' && fuel === 'diesel') return '';
+
+      let hint = '';
+      if(p.id === 'coolant') hint = '<div style="font-size:0.6rem;color:#fcd34d;margin-top:4px;font-weight:600;letter-spacing:0.3px">⚠️ تجنب مياه الحنفية (تسبب الصدأ)</div>';
+      if(p.id === 'brake_fluid') hint = '<div style="font-size:0.6rem;color:#fcd34d;margin-top:4px;font-weight:600;letter-spacing:0.3px">⚠️ يمتص الرطوبة ويفقد كفاءته</div>';
+      if(p.id === 'air_filter') hint = '<div style="font-size:0.6rem;color:#fcd34d;margin-top:4px;font-weight:600;letter-spacing:0.3px">⚠️ يتأثر بشدة بالغبار والأتربة</div>';
+
+      return `
+      <div class="pc" id="pc-${p.id}">
+        <div class="pc-top">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div class="pc-name">${p.name} <span style="font-size:0.65rem;color:#7a808e;font-weight:normal">(${this.fmt(p.kmInt)} كم)</span></div>
+            ${hint}
+          </div>
+          <div class="pc-acts" style="align-self:flex-start;margin-top:2px">
+            <button class="pc-ico-btn" onclick="App.openHist('${p.id}')" title="السجل التاريخي">📋</button>
+            ${p.custom?`<button class="pc-ico-btn pc-del-btn" onclick="App.delPart('${p.id}')" title="حذف">✕</button>`:''}
+            <span class="pill" id="pill-${p.id}"></span>
+          </div>
+        </div>
+        <div class="pc-in">
+          <div class="ig"><div class="lbl">عداد التغيير (كم)</div><input type="tel" id="km_${p.id}" value="${p.km||''}" placeholder="150000" inputmode="numeric"></div>
+          <div class="ig"><div class="lbl">تاريخ التغيير</div><input type="date" id="dt_${p.id}" value="${p.date||''}" max="${today}"></div>
+        </div>
+        <button class="pc-btn q-def" id="qbtn-${p.id}" onclick="App.quickSet('${p.id}')">سجّل تغيير الآن ←</button>
+        <div class="drawer" id="dr-${p.id}"><div class="dr-body">
+          <div class="pw"><div class="pb" id="pb-${p.id}"></div></div>
+          <div class="sts">
+            <div class="stb"><span class="stn" id="skm-${p.id}">—</span><div class="stl">متبقٍ (كم)</div></div>
+            <div class="stb"><span class="stn" id="sdy-${p.id}">—</span><div class="stl">متبقٍ (يوم)</div></div>
+          </div>
+          <div class="dr-foot" id="df-${p.id}"></div>
+        </div></div>
+      </div>`
+    }).join('');
+    this.bindPartInputs(parts);
+  },
+
+  bindPartInputs(parts){
+    parts.forEach(p=>{
+      const ke=document.getElementById('km_'+p.id),de=document.getElementById('dt_'+p.id);if(!ke)return;
+      let lastValid=ke.value;
+
+      ke.addEventListener('focus',()=>{ lastValid=ke.value; });
+      ke.addEventListener('input',(e)=>{
+        const raw=this.parse(e.target.value);
+        e.target.value=this.fmtI(raw);
+        this.process();
+      });
+
+      const validate=(e)=>{
+        const raw=this.parse(e.target.value);
+        const cur=this.parse(document.getElementById('curKm').value);
+        if(raw>0&&cur===0){
+          e.target.value=lastValid;this.flashErr(e.target);
+          this.toast('warn','انتبه','أدخل العداد الحالي للمركبة أولاً');
+          this.process();return;
+        }
+        if(cur>0&&raw>cur){
+          e.target.value=lastValid;this.flashErr(e.target);
+          this.toast('error','خطأ في البيانات','عداد القطعة يتجاوز العداد الحالي — تم استعادة القيمة السابقة');
+          this.process();return;
+        }
+        e.target.value=this.fmtI(raw);
+        lastValid=e.target.value;
+        this.process();
+      };
+      ke.addEventListener('blur',validate);
+      ke.addEventListener('change',validate);
+      ke.addEventListener('paste',(e)=>{setTimeout(()=>validate({target:ke}),0);});
+      de.addEventListener('change',()=>this.process());
+    });
+  },
+
+  quickSet(id){
+    const cur=document.getElementById('curKm').value;
+    if(!cur){this.toast('warn','انتبه','أدخل العداد الحالي للمركبة أولاً');return;}
+    const ke=document.getElementById('km_'+id),de=document.getElementById('dt_'+id);
+    const ok=ke.value,od=de.value;
+    if(ok&&od){
+      const car=this.getCar(this.carId);const part=car?.parts.find(p=>p.id===id);
+      if(part){if(!part.history)part.history=[];part.history.unshift({km:ok,date:od,savedAt:new Date().toISOString()});if(part.history.length>20)part.history=part.history.slice(0,20);this.saveCar(car);}
+    }
+    ke.value=cur;de.value=this.today();
+    const name=this.getCar(this.carId)?.parts.find(p=>p.id===id)?.name||'القطعة';
+    this.toast('success','تم التسجيل',`تم تسجيل تغيير: ${name}`);
+    this.process();
+  },
+
+  delPart(id){
+    this.confirm('🔧','حذف القطعة','هل تريد حذف هذه القطعة المخصصة؟','حذف','',()=>{
+      const car=this.getCar(this.carId);if(!car)return;
+      car.parts=car.parts.filter(p=>p.id!==id);this.saveCar(car);
+      this.renderParts(car);this.process();
+      this.toast('info','تم الحذف','تم حذف القطعة المخصصة');
+    });
+  },
+
+  /* ── Insurance ── */
+  processIns(){
+    const cfg=[{did:'id-ass',dyid:'idays-ass',iid:'iinfo-ass',cid:'ic-ass',pid:'ip-ass',name:'التأمين'},
+               {did:'id-tech',dyid:'idays-tech',iid:'iinfo-tech',cid:'ic-tech',pid:'ip-tech',name:'التقنية'}];
+    const alerts=[];
+    cfg.forEach(it=>{
+      const val=document.getElementById(it.did).value;
+      const card=document.getElementById(it.cid),pill=document.getElementById(it.pid);
+      const dEl=document.getElementById(it.dyid),iEl=document.getElementById(it.iid);
+      if(!val){card.className='ins-card';pill.className='pill';dEl.textContent='—';iEl.textContent='';return;}
+      const diff=Math.floor((new Date(val)-Date.now())/86400000);
+      dEl.textContent=Math.abs(diff);
+      const expired=diff<0,soon=!expired&&diff<90;
+      const st=expired?'danger':soon?'warn':'ok';
+      card.className='ins-card s-'+st;
+      const pm={ok:['سارية','p-ok'],warn:['قريب الانتهاء','p-warn'],danger:['منتهي الصلاحية','p-danger']}[st];
+      pill.textContent=pm[0];pill.className='pill vis '+pm[1];
+      iEl.textContent=(expired?'انتهى: ':'ينتهي بعد '+diff+' يوم — ')+new Date(val).toLocaleDateString('ar-DZ');
+      if(st!=='ok')alerts.push({name:it.name,st,days:Math.abs(diff),expired});
+    });
+    return alerts;
+  },
+
+  /* ── Main process & Health Calculation ── */
+  process(){
+    const cur=this.parse(document.getElementById('curKm').value);
+    const car=this.getCar(this.carId);if(!car)return;
+    const fuel = document.getElementById('fuelSelect').value;
+    const alerts=[...this.processIns()];
+
+    let totalHealthScore = 0;
+    let healthItemsCount = 0;
+
+    (car.parts||[]).forEach(p=>{
+      if (p.id === 'spark' && fuel === 'diesel') return;
+
+      const card=document.getElementById('pc-'+p.id),pill=document.getElementById('pill-'+p.id);
+      const drawer=document.getElementById('dr-'+p.id),qbtn=document.getElementById('qbtn-'+p.id);
+      if(!card)return;
+      const lkm=this.parse(document.getElementById('km_'+p.id)?.value);
+      const ldt=document.getElementById('dt_'+p.id)?.value||'';
+      
+      if(lkm===0){
+        drawer.classList.remove('open');card.className='pc';pill.className='pill';pill.textContent='';
+        if(qbtn){qbtn.className='pc-btn q-def';qbtn.textContent='سجّل تغيير الآن ←';}
+        return;
+      }
+
+      const diff=cur>0?cur-lkm:0,kleft=Math.max(0,p.kmInt-diff);
+      let pct = Math.min(100,Math.max(0,(kleft/p.kmInt)*100));
+      
+      let dleft=null,hasD=false,nxt='';
+      if(ldt){
+        hasD=true;
+        const dd=Math.floor((Date.now()-new Date(ldt))/86400000);
+        dleft=Math.max(0,p.dayInt-dd);
+        const dpct = Math.min(100, Math.max(0, (dleft/p.dayInt)*100));
+        pct = Math.min(pct, dpct); // نأخذ النسبة الأسوأ بين الكيلومتر والأيام
+        const nd=new Date();nd.setDate(nd.getDate()+dleft);
+        nxt='التغيير القادم: '+nd.toLocaleDateString('ar-DZ');
+      }
+
+      // حساب الصحة العامة
+      totalHealthScore += pct;
+      healthItemsCount++;
+
+      const over=kleft<=0||(hasD&&dleft<=0),close=kleft<1500||(hasD&&dleft<30);
+      const st=over?'danger':close?'warn':'ok';
+      card.className='pc s-'+st;
+      const pm={ok:['ممتازة','p-ok'],warn:['فحص قريب','p-warn'],danger:['تغيير فوري','p-danger']}[st];
+      pill.textContent=pm[0];pill.className='pill vis '+pm[1];
+      if(qbtn){qbtn.className='pc-btn q-'+st;qbtn.textContent=st==='danger'?'⚠ تغيير فوري — سجّل الآن ←':st==='warn'?'◉ قريب — سجّل التغيير ←':'✔ سجّل تغيير الآن ←';}
+      drawer.classList.add('open');
+      const bar=document.getElementById('pb-'+p.id);
+      bar.style.width=pct.toFixed(1)+'%';bar.style.background=pct<20?'var(--danger)':pct<50?'var(--warn)':'var(--ok)';
+      document.getElementById('skm-'+p.id).textContent=cur>0?this.fmt(kleft):'—';
+      document.getElementById('sdy-'+p.id).textContent=dleft!==null?this.fmt(dleft):'—';
+      document.getElementById('df-'+p.id).innerHTML=cur>0?`<span class="dr"">مقطوعة: <b>${this.fmt(diff)} كم</b></span>`+(nxt?`<span class="nx">◈ ${nxt}</span>`:''):'';
+      if(st!=='ok')alerts.push({name:p.name,st,kleft});
+    });
+
+    // حساب صحة التأمين والفحص التقني
+    const insVals = [document.getElementById('id-ass').value, document.getElementById('id-tech').value];
+    insVals.forEach(val => {
+      if(val) {
+        const diff = Math.floor((new Date(val) - Date.now()) / 86400000);
+        let pct = 100;
+        if(diff < 0) pct = 0;
+        else if(diff < 90) pct = (diff / 90) * 100;
+        totalHealthScore += pct;
+        healthItemsCount++;
+      }
+    });
+
+    // تحديث شريط الصحة العامة
+    const finalHealth = healthItemsCount > 0 ? Math.round(totalHealthScore / healthItemsCount) : 100;
+    const hFill = document.getElementById('health-fill');
+    const hStatus = document.getElementById('health-status');
+    if(hFill && hStatus) {
+      hFill.style.width = finalHealth + '%';
+      hFill.style.background = finalHealth < 30 ? 'var(--danger)' : finalHealth < 70 ? 'var(--warn)' : 'var(--ok)';
+      let statusText = finalHealth < 30 ? 'حرجة 🔴' : finalHealth < 70 ? 'متوسطة 🟡' : 'ممتازة 🟢';
+      hStatus.innerHTML = `<span>${finalHealth}%</span> ${statusText}`;
+    }
+
+    const nb=document.getElementById('notif-bar'),nl=document.getElementById('notif-list'),nt=document.getElementById('nb-title-el');
+    if(alerts.length){
+      const hasDanger=alerts.some(a=>a.st==='danger');
+      nb.className='nb-'+(hasDanger?'danger':'warn')+' show';
+      nt.innerHTML=(hasDanger?'🔴':'🟡')+' تنبيهات الصيانة الدورية';
+      nl.innerHTML=alerts.map(a=>{
+        let msg=a.name+' — ';
+        if(a.expired!==undefined){
+          msg+=a.expired?'منتهي الصلاحية':'متبقٍ '+a.days+' يوم';
+        } else msg+=a.st==='danger'?'تجاوز موعد الصيانة':'متبقٍ '+this.fmt(a.kleft)+' كم';
+        return`<div class="nb-item"><span class="nb-dot ${a.st==='danger'?'d':'w'}"></span>${msg}</div>`;
+      }).join('');
+    } else{nb.classList.remove('show');}
+
+    const updated=this.collectCar();this.saveCar(updated);this.renderCarsBar();
+  },
+
+  /* ── History ── */
+  openHist(pid){
+    const car=this.getCar(this.carId);const part=car?.parts.find(p=>p.id===pid);if(!part)return;
+    document.getElementById('hist-title').textContent='📋 '+part.name;
+    this._histPid=pid;this.renderHistBody(part);
+    document.getElementById('hist-mo').classList.remove('hidden');
+  },
+  renderHistBody(part){
+    const h=part.history||[];
+    document.getElementById('hist-body').innerHTML=!h.length
+      ?'<div class="hist-empty">لا توجد تغييرات سابقة مسجّلة</div>'
+      :h.map((e,i)=>`<div class="hi">
+        <div><div class="hi-km">${this.fmt(this.parse(e.km))} كم</div><div class="hi-date">📅 ${e.date}</div></div>
+        <button class="hi-del" onclick="App.delHistItem('${part.id}',${i})">🗑</button>
+      </div>`).join('');
+  },
+  delHistItem(pid,idx){
+    const car=this.getCar(this.carId);const part=car?.parts.find(p=>p.id===pid);if(!part)return;
+    part.history.splice(idx,1);this.saveCar(car);this.renderHistBody(part);
+    this.toast('info','تم الحذف','تم حذف سجل التغيير');
+  },
+  closeHist(){document.getElementById('hist-mo').classList.add('hidden');},
+
+  /* ── Add Part ── */
+  openAP(){document.getElementById('ap-mo').classList.remove('hidden');},
+  closeAP(){document.getElementById('ap-mo').classList.add('hidden');['ap-name','ap-km','ap-day'].forEach(id=>document.getElementById(id).value='');},
+  confirmAP(){
+    const name=document.getElementById('ap-name').value.trim();
+    const kmInt=this.parse(document.getElementById('ap-km').value);
+    const dayInt=this.parse(document.getElementById('ap-day').value);
+    if(!name){this.toast('warn','بيانات ناقصة','أدخل اسم القطعة');return;}
+    if(!kmInt||!dayInt){this.toast('warn','بيانات ناقصة','أدخل فترة التغيير');return;}
+    const car=this.getCar(this.carId);if(!car)return;
+    car.parts.push({id:'c_'+this.uid(),name,kmInt,dayInt,custom:true,km:'',date:'',history:[]});
+    this.saveCar(car);this.closeAP();this.renderParts(car);this.process();
+    this.toast('success','تمت الإضافة',`تمت إضافة: ${name}`);
+  },
+
+  /* ── Init ── */
+  init(){
+    this.setupPWA(); // تفعيل تطبيق الهاتف
+    this.populateBrands();
+    const d=this.allData();if(!d.cars.length){const car=this.newCar(this.uid());d.cars.push(car);this.saveAll(d);}
+    this.carId=d.cars[0].id;this.renderCarsBar();this.loadCarUI();
+
+    const curEl=document.getElementById('curKm');
+    const valCur=(e)=>{
+      const raw=this.parse(e.target.value);
+      const car=this.getCar(this.carId);
+      const maxPart=Math.max(0,...(car?.parts||[]).map(p=>this.parse(document.getElementById('km_'+p.id)?.value)));
+      if(maxPart>0&&raw>0&&raw<maxPart){
+        e.target.value=this.lastValidKm;this.flashErr(e.target);
+        this.toast('error','قيمة غير صحيحة',`العداد أقل من قطعة مسجّلة (${this.fmtI(maxPart)} كم) — تم استعادة القيمة السابقة`);
+        this.process();return;
+      }
+      e.target.value=this.fmtI(raw);this.lastValidKm=e.target.value;this.process();
+    };
+    curEl.addEventListener('focus',()=>{this.lastValidKm=curEl.value;});
+    curEl.addEventListener('input',(e)=>{
+      const raw=this.parse(e.target.value);
+      e.target.value=this.fmtI(raw);
+      this.process();
+    });
+    curEl.addEventListener('blur',valCur);
+    curEl.addEventListener('change',valCur);
+    curEl.addEventListener('paste',(e)=>{setTimeout(()=>valCur({target:curEl}),0);});
+
+    document.getElementById('brandSelect').addEventListener('change',e=>this.updateModels(e.target.value));
+    
+    document.getElementById('modelSelect').addEventListener('change',()=>this.applyModelSettings());
+    document.getElementById('fuelSelect').addEventListener('change',()=>this.applyModelSettings());
+    
+    document.getElementById('id-ass').addEventListener('change',()=>this.process());
+    document.getElementById('id-tech').addEventListener('change',()=>this.process());
+
+    ['hist-mo','ap-mo'].forEach(id=>{
+      document.getElementById(id).addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.add('hidden');});
+    });
+
+    document.getElementById('confirm-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.add('hidden');});
+
+    setTimeout(()=>{this.lastValidKm=document.getElementById('curKm').value||'';},100);
+  }
+};
+window.onload=()=>App.init();
+</script>
+</body>
+</html>
