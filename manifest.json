@@ -1,0 +1,25 @@
+{
+  "short_name": "CarCare",
+  "name": "Car Care Pro - تقرير المركبة",
+  "description": "تطبيق شامل لمتابعة صيانة سيارتك",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/CAR-CARE-PRO/index.html",
+  "scope": "/CAR-CARE-PRO/",
+  "display": "standalone",
+  "theme_color": "#07090b",
+  "background_color": "#07090b",
+  "orientation": "portrait"
+}
